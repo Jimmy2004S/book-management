@@ -1,13 +1,25 @@
 import { Router } from "express"
 import { schemaValidator } from "../../../middleware/schema.middleware"
 import {bookSchemaCreate } from "../schemas/book.schemas"
-import { createBook } from "../controllers/book.controller"
+import { createBook, getBooks } from "../controllers/book.controller"
 
 const booksRouter = Router()
 
-booksRouter.get('/', (_req, res) => {
-    console.log('Url base')
-    res.send('books')
+booksRouter.get('/', async (_req, res) => {
+    try{
+
+        const books = await getBooks();
+
+        res.status(200).send({
+            books: books
+        })
+
+    }catch(e){
+        const error = e as Error;
+        res.status(500).send({
+            error: error.message
+        });
+    }
 })
 
 booksRouter.post('/', schemaValidator(bookSchemaCreate) , async (req, res) => {
