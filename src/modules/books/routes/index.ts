@@ -1,17 +1,17 @@
 import { Router } from "express"
 import { schemaValidator } from "../../../middleware/schema.middleware"
-import {bookSchemaCreate } from "../schemas/book.schemas"
-import { createBook, getBookById, getBooks } from "../controllers/book.controller"
+import { bookSchemaCreate, bookSchemaUpdate } from "../schemas/book.schemas"
+import { createBook, getBookById, getBooks, updateBook } from "../controllers/book.controller"
 
 const booksRouter = Router()
 
 
 booksRouter.get('/:id', async (req, res) => {
-    try{
+    try {
         const id = req.params.id
         const book = await getBookById(id);
-        
-        if(!book) {
+
+        if (!book) {
             res.status(404).send({
                 msg: "Libro no encontrado"
             })
@@ -19,7 +19,7 @@ booksRouter.get('/:id', async (req, res) => {
 
         res.status(200).send(book);
 
-    }catch(e){
+    } catch (e) {
         const error = e as Error;
         res.status(500).send({
             error: error.message
@@ -30,7 +30,7 @@ booksRouter.get('/:id', async (req, res) => {
 
 
 booksRouter.get('/', async (_req, res) => {
-    try{
+    try {
 
         const books = await getBooks();
 
@@ -38,7 +38,7 @@ booksRouter.get('/', async (_req, res) => {
             books: books
         })
 
-    }catch(e){
+    } catch (e) {
         const error = e as Error;
         res.status(500).send({
             error: error.message
@@ -46,27 +46,48 @@ booksRouter.get('/', async (_req, res) => {
     }
 })
 
-booksRouter.post('/', schemaValidator(bookSchemaCreate) , async (req, res) => {
-    try{
+booksRouter.post('/', schemaValidator(bookSchemaCreate), async (req, res) => {
+    try {
         const body = req.body
         const newBook = await createBook(body)
         res.status(201).send({
             msg: "Libro agregado",
             book: newBook
         })
-    }catch(e){
+    } catch (e) {
         res.status(500).send({
             msg: "Error"
         })
     }
 })
 
-booksRouter.patch('/', (_req, res) =>{
-    console.log('Actualizar libro')
-    res.send('Actualizado libro')
-})
+booksRouter.patch('/:id', schemaValidator(bookSchemaUpdate), async (req, res) => {
+    try {
+        const id = req.params.id;
+        const book = await getBookById(id);
 
-booksRouter.delete('/', (_req, res) =>{
+        if (!book) {
+            return res.status(404).send({ msg: "Book not found" });
+        }
+
+        const updatedBookData = req.body;
+        const updatedBook = await updateBook(id, updatedBookData);
+
+        res.status(200).send({
+            msg: "Book updated successfully",
+            book: updatedBook
+        });
+
+    } catch (e) {
+        const error = e as Error;
+        res.status(500).send({
+            msg: "Error updating the book",
+            error: error.message
+        });
+    }
+});
+
+booksRouter.delete('/', (_req, res) => {
     console.log('Borrar libro')
     res.send('Eliminado libro')
 })

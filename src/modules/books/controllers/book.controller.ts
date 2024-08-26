@@ -51,3 +51,13 @@ export const getBookById = async (id: string) => {
         throw new Error(error.message)
     }
 }
+
+export const updateBook = async (id: string, updateData: Partial<IBook>) => {
+    try {
+        const updatedBook = await BookModel.findByIdAndUpdate(id, updateData, { new: true });
+        return updatedBook;
+    } catch (e) {
+        const error = e as Error;
+        throw new Error("Error updating book: " + error.message);
+    }
+};
