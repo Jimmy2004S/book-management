@@ -1,13 +1,13 @@
 import express from 'express'
 import { AppParameters, DBParameters} from './utils/constants'
 import { initDatabase } from './database/db'
-import { librosRouter } from './modules/libros/routes'
+import { booksRouter } from './modules/books/routes'
 
 const app = express()
 
 app.use(express.json())
 
-app.use('/api/libros' , librosRouter)
+app.use('/api/books' , booksRouter)
 
 
 app.get('/', (_req, res) => {

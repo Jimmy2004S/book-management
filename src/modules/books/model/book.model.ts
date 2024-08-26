@@ -10,7 +10,7 @@ const bookSchema = new Schema<IBook>({
         type: String, required: true
     },
     publicationDate: {
-        type: Date, required: true
+        type: Date, default: Date.now()
     },
     isbn: {
         type: String, required: true, unique: true
@@ -19,5 +19,7 @@ const bookSchema = new Schema<IBook>({
         type: String, required: true
     }
 })
+
+
 
 export const BookModel = model("books", bookSchema);
