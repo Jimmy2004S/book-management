@@ -1,5 +1,6 @@
 import express from 'express'
-import { DBParameters, ServerParameters } from './utils/constants'
+import { AppParameters, DBParameters} from './utils/constants'
+import { initDatabase } from './database/db'
 
 const app = express()
 
@@ -11,9 +12,14 @@ app.get('/', (_req, res) => {
     res.send('Hello World')
 })
 
+const PORT = 8080
 
-app.listen(ServerParameters.SERVER_PORT, () => {
+app.listen(PORT, async() => {
 
-    console.log(`Server listening at http://localhost:${ServerParameters.SERVER_PORT}`)
+    const url = `mongodb://${DBParameters.DATABASE_HOST}:${DBParameters.DATABASE_PORT}/${DBParameters.DATABASE_NAME}`
+
+    await initDatabase(url)
+
+    console.log(`Server listening at ${AppParameters.APP_URL}:${PORT}`)
 
 })
