@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { schemaValidator } from "../../../middleware/schema.middleware"
 import { bookSchemaCreate, bookSchemaUpdate } from "../schemas/book.schemas"
-import { createBook, getBookById, getBooks, updateBook } from "../controllers/book.controller"
+import { createBook, deleteBook, getBookById, getBooks, updateBook } from "../controllers/book.controller"
 
 const booksRouter = Router()
 
@@ -87,9 +87,21 @@ booksRouter.patch('/:id', schemaValidator(bookSchemaUpdate), async (req, res) =>
     }
 });
 
-booksRouter.delete('/', (_req, res) => {
-    console.log('Borrar libro')
-    res.send('Eliminado libro')
+booksRouter.delete('/:id', (req, res) => {
+    try {
+        const id = req.params.id
+
+        deleteBook(id);
+
+        res.status(201).send({ msg: "Book deleted successfully" })
+
+    } catch (e) {
+        const error = e as Error;
+        res.status(500).send({
+            msg: "Error updating the book",
+            error: error.message
+        });
+    }
 })
 
 

@@ -61,3 +61,19 @@ export const updateBook = async (id: string, updateData: Partial<IBook>) => {
         throw new Error("Error updating book: " + error.message);
     }
 };
+
+export const deleteBook = async (id: string) => {
+    try{
+        const book = await BookModel.findByIdAndDelete(id);
+
+        if(!book){
+            throw new Error("Book not found")
+        }
+
+        return book
+
+    }catch(e){
+        const error = e as Error;
+        throw new Error("Error updating book: " + error.message);
+    }
+}
