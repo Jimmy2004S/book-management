@@ -30,3 +30,24 @@ export const getBooks = async () => {
         throw new Error("Error could not get books: " + error.message);
     }
 }
+
+export const getBookById = async (id: string) => {
+    try{
+        const book = await BookModel.findById(id);
+        
+        if(!book){
+            throw new Error("Libro no encontrado");
+        }
+
+        const formattedBook = {
+            ...book.toObject(),
+            publicationDate: format(book.publicationDate, 'yyyy-MM-dd')
+        }
+
+        return formattedBook
+
+    }catch(e){
+        const error = e as Error;
+        throw new Error(error.message)
+    }
+}

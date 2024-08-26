@@ -1,9 +1,33 @@
 import { Router } from "express"
 import { schemaValidator } from "../../../middleware/schema.middleware"
 import {bookSchemaCreate } from "../schemas/book.schemas"
-import { createBook, getBooks } from "../controllers/book.controller"
+import { createBook, getBookById, getBooks } from "../controllers/book.controller"
 
 const booksRouter = Router()
+
+
+booksRouter.get('/:id', async (req, res) => {
+    try{
+        const id = req.params.id
+        const book = await getBookById(id);
+        
+        if(!book) {
+            res.status(404).send({
+                msg: "Libro no encontrado"
+            })
+        }
+
+        res.status(200).send(book);
+
+    }catch(e){
+        const error = e as Error;
+        res.status(500).send({
+            error: error.message
+        });
+    }
+
+})
+
 
 booksRouter.get('/', async (_req, res) => {
     try{
