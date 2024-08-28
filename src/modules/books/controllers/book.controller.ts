@@ -2,73 +2,111 @@ import { isValidObjectId } from "mongoose";
 import { IBook } from "../interface/book.interface";
 import { BookModel } from "../model/book.model";
 import { format } from 'date-fns';
+import { Response } from "express"
+import { HttpResponse } from "../../../response/http.response";
 
 
-export const createBook = async (book: IBook) => {
+export const createBook = async (book: IBook, res: Response) => {
     try {
         const newBook = new BookModel(book);
-        return await newBook.save();
-    } catch (error) {
-        throw new Error("Error could not save in database");
+        const bookCreated = await newBook.save();
+
+        if (bookCreated)
+            HttpResponse.Created(res, bookCreated)
+        else
+            HttpResponse.BadRequest(res, "No se pudo crear")
+        
+    } catch (e) {
+        const error = e as Error;
+        HttpResponse.Error(res, error)
     }
 }
 
-export const getBooks = async () => {
+export const getBooks = async (res: Response) => {
 
     try {
         const books = await BookModel.find()
 
-        // Formatea la fecha de cada libro
-        const formattedBooks = books.map((book: IBook) => ({
-            ...book.toObject(),
-            publicationDate: format(book.publicationDate, 'yyyy-MM-dd') // Formato deseado
-        }));
+        let formattedBooks = {}
 
-        return formattedBooks;
+        if (!books)
+            HttpResponse.NotFound(res, "No encontrado")
+        else
+            // Formatea la fecha de cada libro
+            formattedBooks = books.map((book: IBook) => ({
+                ...book.toObject(),
+                publicationDate: format(book.publicationDate, 'yyyy-MM-dd') // Formato deseado
+            }));
+            if(formattedBooks)    
+                HttpResponse.Ok(res, formattedBooks)
 
     } catch (e) {
         const error = e as Error;
-        throw new Error("Error could not get books: " + error.message);
+        HttpResponse.Error(res, error)
     }
 }
 
-export const getBookById = async (id: string) => {
+export const getBookById = async (id: string, res: Response) => {
+
     try {
+
         const book = await BookModel.findById(id);
 
-        if (!book) {
-            throw new Error("Libro no encontrado");
-        }
+        let formattedBook = {}
 
-        const formattedBook = {
-            ...book.toObject(),
-            publicationDate: format(book.publicationDate, 'yyyy-MM-dd')
-        }
-
-        return formattedBook
+        if (!book)
+            HttpResponse.NotFound(res, "Book not found");
+        else
+            formattedBook = {
+                ...book.toObject(),
+                publicationDate: format(book.publicationDate, 'yyyy-MM-dd')
+            }
+            if (formattedBook)
+                HttpResponse.Ok(res, formattedBook)
 
     } catch (e) {
         const error = e as Error;
-        throw new Error(error.message)
+        HttpResponse.Error(res, error)
     }
 }
 
-export const updateBook = async (id: string, updateData: Partial<IBook>) => {
+export const updateBook = async (id: string, updateData: Partial<IBook>, res: Response) => {
     try {
-        const updatedBook = await BookModel.findByIdAndUpdate(id, updateData, { new: true });
-        return updatedBook;
+
+        if (!isValidObjectId(id)) {
+            HttpResponse.BadRequest(res, "Invalid ID format");
+        }
+
+        const updated_Book = await BookModel.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (updated_Book)
+            HttpResponse.Ok(res, updated_Book)
+        else
+            HttpResponse.NotFound(res, "No se pudo actualizar")
+
     } catch (e) {
         const error = e as Error;
-        throw new Error("Error updating book: " + error.message);
+        HttpResponse.Error(res, error)
     }
 };
 
-export const deleteBook = async (id: string) => {
-    
-    if (!isValidObjectId(id)) {
-        throw new Error("Invalid ID format");
+export const deleteBook = async (id: string, res: Response) => {
+
+    try {
+
+        if (!isValidObjectId(id)) {
+            HttpResponse.BadRequest(res, "Invalid ID format");
+        }
+        const book = await BookModel.findByIdAndDelete(id);
+
+        if (book)
+            HttpResponse.NoContent(res)
+        else
+            HttpResponse.NotFound(res, "Book not found, could not delete");
+
+    } catch (e) {
+        const error = e as Error;
+        HttpResponse.Error(res, error)
     }
-    
-    const book = await BookModel.findByIdAndDelete(id);
-    return book
+
 }
