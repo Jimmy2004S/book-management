@@ -4,6 +4,7 @@ import { BookModel } from "../model/book.model";
 import { format } from 'date-fns';
 import { Response } from "express"
 import { HttpResponse } from "../../../response/http.response";
+import { formatDate } from "../utils/methods";
 
 
 export const createBook = async (book: IBook, res: Response) => {
@@ -11,8 +12,12 @@ export const createBook = async (book: IBook, res: Response) => {
         const newBook = new BookModel(book);
         const bookCreated = await newBook.save();
 
+        let formmatedBook = {}
+
         if (bookCreated)
-            HttpResponse.Created(res, bookCreated)
+            formmatedBook = formatDate(bookCreated)
+                if(formmatedBook)
+                    HttpResponse.Created(res, formmatedBook)
         else
             HttpResponse.BadRequest(res, "No se pudo crear")
         
@@ -57,10 +62,7 @@ export const getBookById = async (id: string, res: Response) => {
         if (!book)
             HttpResponse.NotFound(res, "Book not found");
         else
-            formattedBook = {
-                ...book.toObject(),
-                publicationDate: format(book.publicationDate, 'yyyy-MM-dd')
-            }
+            formattedBook = formatDate(book)
             if (formattedBook)
                 HttpResponse.Ok(res, formattedBook)
 

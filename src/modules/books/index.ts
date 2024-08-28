@@ -1,8 +1,8 @@
 import { Response, Request, Router } from "express"
-import { schemaValidator } from "../../../middleware/schema.middleware"
-import { bookSchemaCreate, bookSchemaUpdate } from "../schemas/book.schemas"
-import { createBook, deleteBook, getBookById, getBooks, updateBook } from "../controllers/book.controller"
-import { HttpResponse } from '../../../response/http.response';
+import { schemaValidator } from "../../middleware/schema.middleware"
+import { bookSchemaCreate, bookSchemaUpdate } from "./schemas/book.schemas"
+import { createBook, deleteBook, getBookById, getBooks, updateBook } from "./controllers/book.controller"
+import { HttpResponse } from '../../response/http.response';
 
 const booksRouter = Router()
 

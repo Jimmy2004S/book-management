@@ -1,7 +1,7 @@
 import express from 'express'
 import { AppParameters, DBParameters} from './utils/constants'
 import { initDatabase } from './database/db'
-import { booksRouter } from './modules/books/routes'
+import { booksRouter } from './modules/books'
 
 const app = express()
 
