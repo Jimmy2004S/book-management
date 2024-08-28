@@ -1,3 +1,4 @@
+import { isValidObjectId } from "mongoose";
 import { IBook } from "../interface/book.interface";
 import { BookModel } from "../model/book.model";
 import { format } from 'date-fns';
@@ -13,7 +14,7 @@ export const createBook = async (book: IBook) => {
 }
 
 export const getBooks = async () => {
-    
+
     try {
         const books = await BookModel.find()
 
@@ -32,10 +33,10 @@ export const getBooks = async () => {
 }
 
 export const getBookById = async (id: string) => {
-    try{
+    try {
         const book = await BookModel.findById(id);
-        
-        if(!book){
+
+        if (!book) {
             throw new Error("Libro no encontrado");
         }
 
@@ -46,7 +47,7 @@ export const getBookById = async (id: string) => {
 
         return formattedBook
 
-    }catch(e){
+    } catch (e) {
         const error = e as Error;
         throw new Error(error.message)
     }
@@ -63,17 +64,11 @@ export const updateBook = async (id: string, updateData: Partial<IBook>) => {
 };
 
 export const deleteBook = async (id: string) => {
-    try{
-        const book = await BookModel.findByIdAndDelete(id);
-
-        if(!book){
-            throw new Error("Book not found")
-        }
-
-        return book
-
-    }catch(e){
-        const error = e as Error;
-        throw new Error("Error updating book: " + error.message);
+    
+    if (!isValidObjectId(id)) {
+        throw new Error("Invalid ID format");
     }
+    
+    const book = await BookModel.findByIdAndDelete(id);
+    return book
 }

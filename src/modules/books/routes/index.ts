@@ -87,18 +87,21 @@ booksRouter.patch('/:id', schemaValidator(bookSchemaUpdate), async (req, res) =>
     }
 });
 
-booksRouter.delete('/:id', (req, res) => {
+booksRouter.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id
 
-        deleteBook(id);
+        const response = await deleteBook(id);
 
-        res.status(201).send({ msg: "Book deleted successfully" })
+        if(response)
+            res.status(201).send({ msg: "Book deleted successfully" })
+        else
+            res.status(404).send({ msg: "Book not found" })
 
     } catch (e) {
         const error = e as Error;
         res.status(500).send({
-            msg: "Error updating the book",
+            msg: "Error editing the book",
             error: error.message
         });
     }
